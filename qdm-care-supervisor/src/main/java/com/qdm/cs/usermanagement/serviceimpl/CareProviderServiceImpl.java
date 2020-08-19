@@ -141,4 +141,9 @@ public class CareProviderServiceImpl implements CareProviderService {
 	public List<CareProvider> getAllCareProviderListCount() {
 		return careProviderRepository.findAll();
 	}
+
+	@Override
+	public UploadProfile getFile(int fileId) {
+		return uploadProfileRepository.findById(fileId).get();
+	}
 }

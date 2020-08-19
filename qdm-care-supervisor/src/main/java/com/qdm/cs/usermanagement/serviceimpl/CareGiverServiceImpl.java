@@ -137,4 +137,9 @@ public class CareGiverServiceImpl implements CareGiverService {
 		return careGiverRepository.findAll();
 	}
 
+	@Override
+	public UploadProfile getFile(int fileId) {
+		return uploadProfileRepository.findById(fileId).get();
+	}
+
 }

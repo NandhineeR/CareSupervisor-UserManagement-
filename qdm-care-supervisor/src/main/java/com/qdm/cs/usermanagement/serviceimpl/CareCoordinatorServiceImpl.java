@@ -141,4 +141,9 @@ public class CareCoordinatorServiceImpl implements CareCoordinatorService {
 	public List<CareCoordinator> getCareCoordinatorListCount() {
 		return careCoordinatorRepository.findAll();
 	}
+
+	@Override
+	public UploadProfile getFile(int fileId) {
+		return uploadProfileRepository.findById(fileId).get();
+	}
 }

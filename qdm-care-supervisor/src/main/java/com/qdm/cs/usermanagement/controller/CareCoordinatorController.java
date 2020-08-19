@@ -7,9 +7,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -20,11 +25,13 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.qdm.cs.usermanagement.constants.ResponseConstants;
 import com.qdm.cs.usermanagement.dto.FormDataDTO;
 import com.qdm.cs.usermanagement.entity.CareCoordinator;
 import com.qdm.cs.usermanagement.entity.Category;
+import com.qdm.cs.usermanagement.entity.UploadProfile;
 import com.qdm.cs.usermanagement.enums.Status;
 import com.qdm.cs.usermanagement.response.ResponseInfo;
 import com.qdm.cs.usermanagement.response.ResponseType;
@@ -96,12 +103,15 @@ public class CareCoordinatorController {
 				careCoordinatorResponse.put("total_count", pageSize);
 				careCoordinatorResponse.put("offset", pageNo);
 
+				String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
+						.path("/careCoordinator/downloadFile/" + careCoordinatorData.getUploadPhoto().getId()).toUriString();
+
 				Map<String, Object> careGiverDatas = new HashMap<>();
 				careGiverDatas.put("id", careCoordinatorData.getCareCoordinatorId());
 				careGiverDatas.put("name", careCoordinatorData.getCareCoordinatorName());
 				careGiverDatas.put("isactive", careCoordinatorData.getActiveStatus());
 				careGiverDatas.put("service", "");
-				careGiverDatas.put("profile_pic", careCoordinatorData.getUploadPhoto().getData());
+				careGiverDatas.put("profile_pic",fileDownloadUri);
 				careGiverDatas.put("category", categoryList);
 				careGiverDatas.put("orderList", jsonarr);
 				coordinator.add(careGiverDatas);
@@ -142,10 +152,13 @@ public class CareCoordinatorController {
 					}
 				}
 
+				String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
+						.path("/careCoordinator/downloadFile/" + careCoordinatorData.getUploadPhoto().getId()).toUriString();
+
 				careCoordinatorRecord.put("id", careCoordinatorData.getCareCoordinatorId());
 				careCoordinatorRecord.put("name", careCoordinatorData.getCareCoordinatorName());
 				careCoordinatorRecord.put("isactive", careCoordinatorData.getActiveStatus());
-				careCoordinatorRecord.put("profile_pic", careCoordinatorData.getUploadPhoto().getData());
+				careCoordinatorRecord.put("profile_pic", fileDownloadUri);
 				careCoordinatorRecord.put("mobile_no", careCoordinatorData.getMobileNo());
 				careCoordinatorRecord.put("email", careCoordinatorData.getEmailId());
 				careCoordinatorRecord.put("address", careCoordinatorData.getAddress());
@@ -210,6 +223,14 @@ public class CareCoordinatorController {
 		}
 	}
 
+	@GetMapping("/downloadFile/{fileId:.+}")
+	public ResponseEntity<Resource> downloadFile(@PathVariable int fileId, HttpServletRequest request) {
+		UploadProfile databaseFile = careCoordinatorService.getFile(fileId);
+		return ResponseEntity.ok().contentType(MediaType.parseMediaType(databaseFile.getFileType()))
+				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + databaseFile.getFileName() + "\"")
+				.body(new ByteArrayResource(databaseFile.getData()));
+	}
+	
 	@PutMapping("/updateClientsCount/{careCoordinatorId}/{clientsCount}")
 	public ResponseEntity<?> updateClientsCount(@PathVariable("careCoordinatorId") long careCoordinatorId,
 			@PathVariable("clientsCount") int clientsCount) {
@@ -267,8 +288,8 @@ public class CareCoordinatorController {
 		}
 	}
 
-	@PutMapping("/updateClientsActiveStatus/{careCoordinatorId}/{activeStatus}")
-	public ResponseEntity<?> updateClientsActiveStatus(@PathVariable("careCoordinatorId") long careCoordinatorId,
+	@PutMapping("/updateCareCoordinatorAvailabilityStatus/{careCoordinatorId}/{activeStatus}")
+	public ResponseEntity<?> updateCareCoordinatorAvailabilityStatus(@PathVariable("careCoordinatorId") long careCoordinatorId,
 			@PathVariable("activeStatus") Status activeStatus) {
 		ResponseEntity response = null;
 		try {

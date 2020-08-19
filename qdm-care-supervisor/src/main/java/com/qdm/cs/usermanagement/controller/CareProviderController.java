@@ -7,9 +7,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -20,11 +25,13 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.qdm.cs.usermanagement.constants.ResponseConstants;
 import com.qdm.cs.usermanagement.dto.FormDataDTO;
 import com.qdm.cs.usermanagement.entity.CareProvider;
 import com.qdm.cs.usermanagement.entity.Category;
+import com.qdm.cs.usermanagement.entity.UploadProfile;
 import com.qdm.cs.usermanagement.enums.Status;
 import com.qdm.cs.usermanagement.response.ResponseInfo;
 import com.qdm.cs.usermanagement.response.ResponseType;
@@ -63,12 +70,12 @@ public class CareProviderController {
 			@RequestParam(defaultValue = "10") Integer pageSize) {
 		ResponseEntity response = null;
 		try {
-			List<CareProvider> careProviderList = careProviderService.getCareProvider(pageNo,pageSize);
-			List<CareProvider> totalCount=careProviderService.getAllCareProviderListCount();
+			List<CareProvider> careProviderList = careProviderService.getCareProvider(pageNo, pageSize);
+			List<CareProvider> totalCount = careProviderService.getAllCareProviderListCount();
 			List<Object> careProviderRecords = new ArrayList<>();
 			Map<String, Object> careProvidersResponse = new HashMap<>();
-			
-			for (CareProvider careProvider : careProviderList) {	
+
+			for (CareProvider careProvider : careProviderList) {
 				List<Category> category = careProviderService.getCategoryListById(careProvider.getCategory());
 				List<Object> categoryList = new ArrayList<>();
 				for (Category categoryData : category) {
@@ -79,40 +86,41 @@ public class CareProviderController {
 						categoryList.add(categoryMap);
 					}
 				}
-				
+
 				JSONObject careGivers = new JSONObject();
 				careGivers.put("count", careProvider.getCareGiversCount());
-				careGivers.put("careGivers", "CareGivers");
-				
+				careGivers.put("name", "CareGivers");
+
 				JSONObject products = new JSONObject();
 				products.put("count", careProvider.getProductsCount());
-				products.put("careGivers", "Products");
-				
+				products.put("name", "Products");
+
 				JSONObject offers = new JSONObject();
 				offers.put("count", careProvider.getOffersCount());
-				offers.put("careGivers", "Offers");
+				offers.put("name", "Offers");
 
 				JSONArray jsonarr = new JSONArray();
 				jsonarr.add(careGivers);
 				jsonarr.add(products);
 				jsonarr.add(offers);
-				
-				
-				
+
 				careProvidersResponse.put("total_count", totalCount.size());
 				careProvidersResponse.put("offset", pageNo);
-				
+
+				String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
+						.path("/careProvider/downloadFile/" + careProvider.getUploadPhoto().getId()).toUriString();
+
 				Map<String, Object> careProvidersData = new HashMap<>();
 				careProvidersData.put("id", careProvider.getCareProviderId());
 				careProvidersData.put("name", careProvider.getCareProviderName());
-				careProvidersData.put("isactive",  careProvider.getActiveStatus());
+				careProvidersData.put("isactive", careProvider.getActiveStatus());
 				careProvidersData.put("service", "");
-				careProvidersData.put("profile_pic", careProvider.getUploadPhoto().getData());
+				careProvidersData.put("profile_pic", fileDownloadUri);
 				careProvidersData.put("category", categoryList);
 				careProvidersData.put("orderList", jsonarr);
 				careProviderRecords.add(careProvidersData);
 				careProvidersResponse.put("list", careProviderRecords);
-				
+
 			}
 			log.info("Get All CareProviders Records");
 			response = new ResponseEntity(new ResponseInfo(ResponseType.SUCCESS.getResponseMessage(),
@@ -146,12 +154,15 @@ public class CareProviderController {
 						categoryList.add(categoryMap);
 					}
 				}
-							
-				System.out.println("Offers "+careProviderList.getOfferings() +"  "+careProviderList.getSkills());
+
+				String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
+						.path("/careProvider/downloadFile/" + careProviderList.getUploadPhoto().getId()).toUriString();
+
+				System.out.println("Offers " + careProviderList.getOfferings() + "  " + careProviderList.getSkills());
 				careProviderRecord.put("id", careProviderList.getCareProviderId());
-				careProviderRecord.put("name",  careProviderList.getCareProviderName());
+				careProviderRecord.put("name", careProviderList.getCareProviderName());
 				careProviderRecord.put("isactive", careProviderList.getActiveStatus());
-				careProviderRecord.put("profile_pic", careProviderList.getUploadPhoto().getData());
+				careProviderRecord.put("profile_pic", fileDownloadUri);
 				careProviderRecord.put("service", "");
 				careProviderRecord.put("incharge_name", careProviderList.getInChargesName());
 				careProviderRecord.put("mobile_no", careProviderList.getMobileNo());
@@ -162,15 +173,17 @@ public class CareProviderController {
 				careProviderRecord.put("care_giver_count", careProviderList.getCareGiversCount());
 				careProviderRecord.put("skills", careProviderList.getSkills());
 				careProviderRecord.put("category", categoryList);
-		
+
 				log.info("Get CareProvider Records By CareProviderId " + careProviderId);
 				response = new ResponseEntity(new ResponseInfo(ResponseType.SUCCESS.getResponseMessage(),
 						ResponseType.SUCCESS.getResponseCode(), "", careProviderRecord), HttpStatus.OK);
 				return response;
 			} else {
 				log.info("No CareProvider Found with Id : " + careProviderId);
-				response = new ResponseEntity(new ResponseInfo(ResponseType.NOT_FOUND.getResponseMessage(),
-						ResponseType.NOT_FOUND.getResponseCode(), "", careProviderRecord), HttpStatus.NOT_FOUND);
+				response = new ResponseEntity(
+						new ResponseInfo(ResponseType.NOT_FOUND.getResponseMessage(),
+								ResponseType.NOT_FOUND.getResponseCode(), "", careProviderRecord),
+						HttpStatus.NOT_FOUND);
 				return response;
 			}
 		} catch (Exception e) {
@@ -213,9 +226,17 @@ public class CareProviderController {
 			return response;
 		}
 	}
+	
+	@GetMapping("/downloadFile/{fileId:.+}")
+	public ResponseEntity<Resource> downloadFile(@PathVariable int fileId, HttpServletRequest request) {
+		UploadProfile databaseFile = careProviderService.getFile(fileId);
+		return ResponseEntity.ok().contentType(MediaType.parseMediaType(databaseFile.getFileType()))
+				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + databaseFile.getFileName() + "\"")
+				.body(new ByteArrayResource(databaseFile.getData()));
+	}
 
-	@PutMapping("/updateClientsActiveStatus/{careProviderId}/{activeStatus}")
-	public ResponseEntity<?> updateClientsActiveStatus(@PathVariable("careProviderId") long careProviderId,
+	@PutMapping("/updateCareProviderAvailabilityStatus/{careProviderId}/{activeStatus}")
+	public ResponseEntity<?> updateCareProviderAvailabilityStatus(@PathVariable("careProviderId") long careProviderId,
 			@PathVariable("activeStatus") Status activeStatus) {
 		ResponseEntity response = null;
 		try {

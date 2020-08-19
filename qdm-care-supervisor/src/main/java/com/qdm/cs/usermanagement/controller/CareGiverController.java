@@ -7,9 +7,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -20,11 +25,13 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.qdm.cs.usermanagement.constants.ResponseConstants;
 import com.qdm.cs.usermanagement.dto.FormDataDTO;
 import com.qdm.cs.usermanagement.entity.CareGiver;
 import com.qdm.cs.usermanagement.entity.Category;
+import com.qdm.cs.usermanagement.entity.UploadProfile;
 import com.qdm.cs.usermanagement.enums.Status;
 import com.qdm.cs.usermanagement.response.ResponseInfo;
 import com.qdm.cs.usermanagement.response.ResponseType;
@@ -65,7 +72,7 @@ public class CareGiverController {
 		ResponseEntity response = null;
 		try {
 			List<CareGiver> careGiverList = careGiverService.getCareGiver(pageNo, pageSize);
-			List<CareGiver> getAllCareGiversListCount=careGiverService.getAllCareGiversListCount();
+			List<CareGiver> getAllCareGiversListCount = careGiverService.getAllCareGiversListCount();
 			List<Object> careGiverRecords = new ArrayList<>();
 			Map<String, Object> careGiverResponse = new HashMap<>();
 			for (CareGiver careGiver : careGiverList) {
@@ -89,12 +96,15 @@ public class CareGiverController {
 				careGiverResponse.put("total_count", getAllCareGiversListCount.size());
 				careGiverResponse.put("offset", pageNo);
 
+				String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
+						.path("/careGiver/downloadFile/" + careGiver.getUploadPhoto().getId()).toUriString();
+
 				Map<String, Object> careGiverDatas = new HashMap<>();
 				careGiverDatas.put("id", careGiver.getCareGiverId());
 				careGiverDatas.put("name", careGiver.getCareGiverName());
 				careGiverDatas.put("isactive", careGiver.getActiveStatus());
 				careGiverDatas.put("service", "");
-				careGiverDatas.put("profile_pic", careGiver.getUploadPhoto().getData());
+				careGiverDatas.put("profile_pic", fileDownloadUri);
 				careGiverDatas.put("category", categoryList);
 				careGiverDatas.put("orderList", jsonarr);
 				careGiverRecords.add(careGiverDatas);
@@ -131,10 +141,13 @@ public class CareGiverController {
 					}
 				}
 
+				String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
+						.path("/careGiver/downloadFile/" + careGiverList.getUploadPhoto().getId()).toUriString();
+
 				careGiverRecord.put("id", careGiverList.getCareGiverId());
 				careGiverRecord.put("name", careGiverList.getCareGiverName());
 				careGiverRecord.put("isactive", careGiverList.getActiveStatus());
-				careGiverRecord.put("profile_pic", careGiverList.getUploadPhoto().getData());
+				careGiverRecord.put("profile_pic", fileDownloadUri);
 				careGiverRecord.put("mobile_no", careGiverList.getMobileNo());
 				careGiverRecord.put("email", careGiverList.getEmailId());
 				careGiverRecord.put("address", careGiverList.getAddress());
@@ -198,6 +211,14 @@ public class CareGiverController {
 
 	}
 
+	@GetMapping("/downloadFile/{fileId:.+}")
+	public ResponseEntity<Resource> downloadFile(@PathVariable int fileId, HttpServletRequest request) {
+		UploadProfile databaseFile = careGiverService.getFile(fileId);
+		return ResponseEntity.ok().contentType(MediaType.parseMediaType(databaseFile.getFileType()))
+				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + databaseFile.getFileName() + "\"")
+				.body(new ByteArrayResource(databaseFile.getData()));
+	}
+
 	@PutMapping(value = "/updateClientsCount/{careGiverId}/{clientsCount}", produces = {
 			MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<?> updateClientsCount(@PathVariable("careGiverId") long careGiverId,
@@ -226,7 +247,7 @@ public class CareGiverController {
 
 	@PutMapping(value = "/updateCareGiverAvailabilityStatus/{careGiverId}/{activeStatus}", produces = {
 			MediaType.APPLICATION_JSON_VALUE })
-	public ResponseEntity<?> updateClientsActiveStatus(@PathVariable("careGiverId") long careGiverId,
+	public ResponseEntity<?> updateCareGiverAvailabilityStatus(@PathVariable("careGiverId") long careGiverId,
 			@PathVariable("activeStatus") Status activeStatus) {
 		ResponseEntity response = null;
 		try {

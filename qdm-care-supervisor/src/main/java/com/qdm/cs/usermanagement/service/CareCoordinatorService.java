@@ -8,6 +8,7 @@ import java.util.Optional;
 import com.qdm.cs.usermanagement.dto.FormDataDTO;
 import com.qdm.cs.usermanagement.entity.CareCoordinator;
 import com.qdm.cs.usermanagement.entity.Category;
+import com.qdm.cs.usermanagement.entity.UploadProfile;
 import com.qdm.cs.usermanagement.enums.Status;
 
 public interface CareCoordinatorService {
@@ -29,5 +30,7 @@ public interface CareCoordinatorService {
 	CareCoordinator updateCareCoordinator(FormDataDTO formDataDTO) throws IOException;
 
 	List<CareCoordinator> getCareCoordinatorListCount();
+
+	UploadProfile getFile(int fileId);
 
 }
