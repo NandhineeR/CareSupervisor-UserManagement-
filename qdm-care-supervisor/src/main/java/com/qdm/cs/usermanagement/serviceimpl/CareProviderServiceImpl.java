@@ -136,4 +136,9 @@ public class CareProviderServiceImpl implements CareProviderService {
 		}
 		return careProviderUpdateDate.get();
 	}
+
+	@Override
+	public List<CareProvider> getAllCareProviderListCount() {
+		return careProviderRepository.findAll();
+	}
 }

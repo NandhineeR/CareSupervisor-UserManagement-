@@ -28,4 +28,6 @@ public interface CareProviderService {
 
 	CareProvider updateCareProvider(FormDataDTO formDataDTO) throws IOException;
 
+	List<CareProvider> getAllCareProviderListCount();
+
 }

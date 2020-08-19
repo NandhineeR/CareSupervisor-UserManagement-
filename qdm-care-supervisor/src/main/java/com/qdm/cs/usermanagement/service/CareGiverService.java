@@ -26,4 +26,6 @@ public interface CareGiverService {
 
 	CareGiver updateCareGiver(FormDataDTO formDataDTO) throws IOException;
 
+	List<CareGiver> getAllCareGiversListCount();
+
 }

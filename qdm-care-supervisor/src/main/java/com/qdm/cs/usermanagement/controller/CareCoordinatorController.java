@@ -65,6 +65,7 @@ public class CareCoordinatorController {
 		ResponseEntity response = null;
 		try {
 			List<CareCoordinator> careCoordinatorList = careCoordinatorService.getCareCoordinator(pageNo, pageSize);
+			List<CareCoordinator> careCoordinatorListCount = careCoordinatorService.getCareCoordinatorListCount();
 			List<Object> coordinator = new ArrayList<>();
 			Map<String, Object> careCoordinatorResponse = new HashMap<>();
 

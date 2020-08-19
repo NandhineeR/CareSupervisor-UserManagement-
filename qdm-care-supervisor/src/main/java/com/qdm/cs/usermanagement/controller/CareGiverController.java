@@ -65,6 +65,7 @@ public class CareGiverController {
 		ResponseEntity response = null;
 		try {
 			List<CareGiver> careGiverList = careGiverService.getCareGiver(pageNo, pageSize);
+			List<CareGiver> getAllCareGiversListCount=careGiverService.getAllCareGiversListCount();
 			List<Object> careGiverRecords = new ArrayList<>();
 			Map<String, Object> careGiverResponse = new HashMap<>();
 			for (CareGiver careGiver : careGiverList) {
@@ -85,7 +86,7 @@ public class CareGiverController {
 
 				JSONArray jsonarr = new JSONArray();
 				jsonarr.add(obj);
-				careGiverResponse.put("total_count", pageSize);
+				careGiverResponse.put("total_count", getAllCareGiversListCount.size());
 				careGiverResponse.put("offset", pageNo);
 
 				Map<String, Object> careGiverDatas = new HashMap<>();

@@ -28,4 +28,6 @@ public interface CareCoordinatorService {
 
 	CareCoordinator updateCareCoordinator(FormDataDTO formDataDTO) throws IOException;
 
+	List<CareCoordinator> getCareCoordinatorListCount();
+
 }

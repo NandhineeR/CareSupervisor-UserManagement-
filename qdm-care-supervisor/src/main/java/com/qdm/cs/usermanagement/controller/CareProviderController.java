@@ -64,6 +64,7 @@ public class CareProviderController {
 		ResponseEntity response = null;
 		try {
 			List<CareProvider> careProviderList = careProviderService.getCareProvider(pageNo,pageSize);
+			List<CareProvider> totalCount=careProviderService.getAllCareProviderListCount();
 			List<Object> careProviderRecords = new ArrayList<>();
 			Map<String, Object> careProvidersResponse = new HashMap<>();
 			
@@ -98,7 +99,7 @@ public class CareProviderController {
 				
 				
 				
-				careProvidersResponse.put("total_count", pageSize);
+				careProvidersResponse.put("total_count", totalCount.size());
 				careProvidersResponse.put("offset", pageNo);
 				
 				Map<String, Object> careProvidersData = new HashMap<>();

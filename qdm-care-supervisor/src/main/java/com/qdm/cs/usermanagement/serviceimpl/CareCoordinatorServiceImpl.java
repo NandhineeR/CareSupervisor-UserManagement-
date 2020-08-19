@@ -136,4 +136,9 @@ public class CareCoordinatorServiceImpl implements CareCoordinatorService {
 		}
 		return careCoordinatorUpdateData.get();
 	}
+
+	@Override
+	public List<CareCoordinator> getCareCoordinatorListCount() {
+		return careCoordinatorRepository.findAll();
+	}
 }

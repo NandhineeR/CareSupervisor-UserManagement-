@@ -132,4 +132,9 @@ public class CareGiverServiceImpl implements CareGiverService {
 		return careGiverUpdateDate.get();
 	}
 
+	@Override
+	public List<CareGiver> getAllCareGiversListCount() {
+		return careGiverRepository.findAll();
+	}
+
 }
