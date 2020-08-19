@@ -152,9 +152,9 @@ public class CareGiverController {
 				careGiverRecord.put("email", careGiverList.getEmailId());
 				careGiverRecord.put("address", careGiverList.getAddress());
 				careGiverRecord.put("clients_count", careGiverList.getClientsCount());
-				careGiverRecord.put("upcoming_activities_count", "");
-				careGiverRecord.put("average_rating", "");
-				careGiverRecord.put("upcoming_activities_count", "");
+				careGiverRecord.put("upcoming_activities_count", 0);
+				careGiverRecord.put("average_rating", 0);
+				careGiverRecord.put("upcoming_activities_count", 0);
 				careGiverRecord.put("skills", careGiverList.getSkills());
 				careGiverRecord.put("category", categoryList);
 				careGiverRecord.put("care_provider", "");

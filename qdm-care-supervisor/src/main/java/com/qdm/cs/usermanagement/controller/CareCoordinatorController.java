@@ -163,9 +163,9 @@ public class CareCoordinatorController {
 				careCoordinatorRecord.put("email", careCoordinatorData.getEmailId());
 				careCoordinatorRecord.put("address", careCoordinatorData.getAddress());
 				careCoordinatorRecord.put("clients_count", careCoordinatorData.getClientsCount());
-				careCoordinatorRecord.put("upcoming_activities_count", "");
-				careCoordinatorRecord.put("average_rating", "");
-				careCoordinatorRecord.put("upcoming_activities_count", "");
+				careCoordinatorRecord.put("upcoming_activities_count", 0);
+				careCoordinatorRecord.put("average_rating", 0);
+				careCoordinatorRecord.put("upcoming_activities_count", 0);
 				careCoordinatorRecord.put("skills", careCoordinatorData.getSkills());
 				careCoordinatorRecord.put("category", categoryList);
 				careCoordinatorRecord.put("care_provider", "");
