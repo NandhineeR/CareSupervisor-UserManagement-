@@ -1,4 +1,46 @@
-2020-08-20 08:14:20 [restartedMain] ERROR com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Exception during pool initialization.
+2020-08-19 11:48:51 [restartedMain] ERROR o.s.b.d.LoggingFailureAnalysisReporter - 
+
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+Web server failed to start. Port 8443 was already in use.
+
+Action:
+
+Identify and stop the process that's listening on port 8443 or configure this application to listen on another port.
+
+2020-08-19 11:49:19 [restartedMain] ERROR o.s.b.d.LoggingFailureAnalysisReporter - 
+
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+Web server failed to start. Port 8443 was already in use.
+
+Action:
+
+Identify and stop the process that's listening on port 8443 or configure this application to listen on another port.
+
+2020-08-19 11:51:36 [restartedMain] ERROR o.s.b.d.LoggingFailureAnalysisReporter - 
+
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+Web server failed to start. Port 8443 was already in use.
+
+Action:
+
+Identify and stop the process that's listening on port 8443 or configure this application to listen on another port.
+
+2020-08-19 16:35:10 [restartedMain] ERROR com.zaxxer.hikari.pool.HikariPool - HikariPool-8 - Exception during pool initialization.
 org.postgresql.util.PSQLException: FATAL: password authentication failed for user "postgres"
 	at org.postgresql.core.v3.ConnectionFactoryImpl.doAuthentication(ConnectionFactoryImpl.java:525)
 	at org.postgresql.core.v3.ConnectionFactoryImpl.tryConnect(ConnectionFactoryImpl.java:146)
@@ -59,7 +101,7 @@ org.postgresql.util.PSQLException: FATAL: password authentication failed for use
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)
 	at java.lang.reflect.Method.invoke(Unknown Source)
 	at org.springframework.boot.devtools.restart.RestartLauncher.run(RestartLauncher.java:49)
-2020-08-20 08:14:21 [restartedMain] ERROR com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Exception during pool initialization.
+2020-08-19 16:35:11 [restartedMain] ERROR com.zaxxer.hikari.pool.HikariPool - HikariPool-8 - Exception during pool initialization.
 org.postgresql.util.PSQLException: FATAL: password authentication failed for user "postgres"
 	at org.postgresql.core.v3.ConnectionFactoryImpl.doAuthentication(ConnectionFactoryImpl.java:525)
 	at org.postgresql.core.v3.ConnectionFactoryImpl.tryConnect(ConnectionFactoryImpl.java:146)
@@ -121,8 +163,8 @@ org.postgresql.util.PSQLException: FATAL: password authentication failed for use
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)
 	at java.lang.reflect.Method.invoke(Unknown Source)
 	at org.springframework.boot.devtools.restart.RestartLauncher.run(RestartLauncher.java:49)
-2020-08-20 08:14:21 [restartedMain] ERROR o.h.e.jdbc.spi.SqlExceptionHelper - FATAL: password authentication failed for user "postgres"
-2020-08-20 08:14:21 [restartedMain] ERROR o.s.boot.SpringApplication - Application run failed
+2020-08-19 16:35:11 [restartedMain] ERROR o.h.e.jdbc.spi.SqlExceptionHelper - FATAL: password authentication failed for user "postgres"
+2020-08-19 16:35:11 [restartedMain] ERROR o.s.boot.SpringApplication - Application run failed
 org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'entityManagerFactory' defined in class path resource [com/qdm/cs/config/DatasourceConfig.class]: Invocation of init method failed; nested exception is javax.persistence.PersistenceException: [PersistenceUnit: CareGiver] Unable to build Hibernate SessionFactory; nested exception is org.hibernate.exception.GenericJDBCException: Unable to open JDBC Connection for DDL execution
 	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1794)
 	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:594)
@@ -196,17 +238,3 @@ Caused by: org.postgresql.util.PSQLException: FATAL: password authentication fai
 	at org.hibernate.engine.jdbc.env.internal.JdbcEnvironmentInitiator$ConnectionProviderJdbcConnectionAccess.obtainConnection(JdbcEnvironmentInitiator.java:180)
 	at org.hibernate.resource.transaction.backend.jdbc.internal.DdlTransactionIsolatorNonJtaImpl.getIsolatedConnection(DdlTransactionIsolatorNonJtaImpl.java:43)
 	... 43 common frames omitted
-2020-08-20 14:17:39 [restartedMain] ERROR o.s.b.d.LoggingFailureAnalysisReporter - 
-
-***************************
-APPLICATION FAILED TO START
-***************************
-
-Description:
-
-Web server failed to start. Port 8443 was already in use.
-
-Action:
-
-Identify and stop the process that's listening on port 8443 or configure this application to listen on another port.
-
