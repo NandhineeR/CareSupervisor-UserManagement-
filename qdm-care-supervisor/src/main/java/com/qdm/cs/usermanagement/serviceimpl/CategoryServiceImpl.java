@@ -20,7 +20,12 @@ public class CategoryServiceImpl implements CategoryService {
 
 	@Override
 	public Category addCategoryList(Category category) {
-		return categoryRepository.save(category);
+		Category categoryById = categoryRepository.findByCategoryId(category.getCategoryId());
+		if (categoryById != null) {
+			return null;
+		} else {
+			return categoryRepository.save(category);
+		}
 	}
 
 	@Override

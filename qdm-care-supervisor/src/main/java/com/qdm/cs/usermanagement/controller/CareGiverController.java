@@ -96,15 +96,18 @@ public class CareGiverController {
 				careGiverResponse.put("total_count", getAllCareGiversListCount.size());
 				careGiverResponse.put("offset", pageNo);
 
-				String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
-						.path("/careGiver/downloadFile/" + careGiver.getUploadPhoto().getId()).toUriString();
-
 				Map<String, Object> careGiverDatas = new HashMap<>();
 				careGiverDatas.put("id", careGiver.getCareGiverId());
 				careGiverDatas.put("name", careGiver.getCareGiverName());
 				careGiverDatas.put("isactive", careGiver.getActiveStatus());
 				careGiverDatas.put("service", "");
-				careGiverDatas.put("profile_pic", fileDownloadUri);
+				if (careGiver.getUploadPhoto() != null) {
+					String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
+							.path("/careGiver/downloadFile/" + careGiver.getUploadPhoto().getId()).toUriString();
+					careGiverDatas.put("profile_pic", fileDownloadUri);
+				} else {
+					careGiverDatas.put("profile_pic", "");
+				}
 				careGiverDatas.put("category", categoryList);
 				careGiverDatas.put("orderList", jsonarr);
 				careGiverRecords.add(careGiverDatas);
@@ -141,13 +144,19 @@ public class CareGiverController {
 					}
 				}
 
-				String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
-						.path("/careGiver/downloadFile/" + careGiverList.getUploadPhoto().getId()).toUriString();
-
 				careGiverRecord.put("id", careGiverList.getCareGiverId());
 				careGiverRecord.put("name", careGiverList.getCareGiverName());
 				careGiverRecord.put("isactive", careGiverList.getActiveStatus());
-				careGiverRecord.put("profile_pic", fileDownloadUri);
+				if (careGiverList.getUploadPhoto() != null) {
+					String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
+							.path("/careGiver/downloadFile/" + careGiverList.getUploadPhoto().getId()).toUriString();
+
+					careGiverRecord.put("profile_pic", fileDownloadUri);
+				} else {
+					careGiverRecord.put("profile_pic", "");
+
+				}
+
 				careGiverRecord.put("mobile_no", careGiverList.getMobileNo());
 				careGiverRecord.put("email", careGiverList.getEmailId());
 				careGiverRecord.put("address", careGiverList.getAddress());

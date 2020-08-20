@@ -43,4 +43,12 @@ public class UploadProfile implements Serializable {
 	@Column(name = "File_Size")
 	private long size;
 
+	public UploadProfile(String fileName, String fileType, byte[] data, long size) {
+		super();
+		this.fileName = fileName;
+		this.fileType = fileType;
+		this.data = data;
+		this.size = size;
+	}
+
 }

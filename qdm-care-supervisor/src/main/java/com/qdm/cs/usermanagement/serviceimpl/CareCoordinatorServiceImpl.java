@@ -18,6 +18,7 @@ import org.springframework.util.StringUtils;
 
 import com.qdm.cs.usermanagement.dto.FormDataDTO;
 import com.qdm.cs.usermanagement.entity.CareCoordinator;
+import com.qdm.cs.usermanagement.entity.CareGiver;
 import com.qdm.cs.usermanagement.entity.Category;
 import com.qdm.cs.usermanagement.entity.UploadProfile;
 import com.qdm.cs.usermanagement.enums.Status;
@@ -104,13 +105,20 @@ public class CareCoordinatorServiceImpl implements CareCoordinatorService {
 	}
 
 	@Override
-	public CareCoordinator addCareCoordinator(FormDataDTO formDataDTO) throws IOException {
+	public CareCoordinator addCareCoordinator(FormDataDTO formDataDTO) {
 		CareCoordinator careCoordinator = modelMapper.map(formDataDTO, CareCoordinator.class);
-		String fileName = StringUtils.cleanPath(formDataDTO.getUploadPhoto().getOriginalFilename());
-		UploadProfile uploadProfile = UploadProfile.builder().fileName(fileName)
-				.fileType(formDataDTO.getUploadPhoto().getContentType()).data(formDataDTO.getUploadPhoto().getBytes())
-				.size(formDataDTO.getUploadPhoto().getSize()).build();
-		careCoordinator.setUploadPhoto(uploadProfile);
+		if (careCoordinator.getUploadPhoto() != null) {
+			try {
+				String fileName = StringUtils.cleanPath(formDataDTO.getUploadPhoto().getOriginalFilename());
+				UploadProfile uploadProfile = UploadProfile.builder().fileName(fileName)
+						.fileType(formDataDTO.getUploadPhoto().getContentType())
+						.data(formDataDTO.getUploadPhoto().getBytes()).size(formDataDTO.getUploadPhoto().getSize())
+						.build();
+				careCoordinator.setUploadPhoto(uploadProfile);
+			} catch (IOException e) {
+				log.error("Error Occured In Care Coordinator Service Add Care Coordinator With Id " + careCoordinator.getCareCoordinatorId());
+			}
+		}
 		return careCoordinatorRepository.save(careCoordinator);
 	}
 
@@ -118,21 +126,30 @@ public class CareCoordinatorServiceImpl implements CareCoordinatorService {
 	public CareCoordinator updateCareCoordinator(FormDataDTO formDataDTO) {
 		Optional<CareCoordinator> careCoordinatorUpdateData = careCoordinatorRepository
 				.findById(formDataDTO.getCareCoordinatorId());
-		int uploadProfileId = careCoordinatorUpdateData.get().getUploadPhoto().getId();
 		if (careCoordinatorUpdateData.isPresent()) {
-			CareCoordinator careCoordinator = modelMapper.map(formDataDTO, CareCoordinator.class);
-			try {
-				careCoordinator.getUploadPhoto().setFileName(formDataDTO.getUploadPhoto().getOriginalFilename());
-				careCoordinator.getUploadPhoto().setFileType(formDataDTO.getUploadPhoto().getContentType());
-				careCoordinator.getUploadPhoto().setData(formDataDTO.getUploadPhoto().getBytes());
-				careCoordinator.getUploadPhoto().setSize(formDataDTO.getUploadPhoto().getSize());
-			} catch (IOException e) {
-				log.error("Error Occured In Care Coordinator Service updateCareCoordinator With Id "
-						+ careCoordinator.getCareCoordinatorId());
+			careCoordinatorUpdateData.get().setActiveStatus(formDataDTO.getActiveStatus() != null ? formDataDTO.getActiveStatus(): careCoordinatorUpdateData.get().getActiveStatus());
+			careCoordinatorUpdateData.get().setAddress(formDataDTO.getAddress() != null ? formDataDTO.getAddress(): careCoordinatorUpdateData.get().getAddress());
+			careCoordinatorUpdateData.get().setCareCoordinatorName(formDataDTO.getCareCoordinatorName() != null ? formDataDTO.getCareCoordinatorName(): careCoordinatorUpdateData.get().getCareCoordinatorName());
+			careCoordinatorUpdateData.get().setCareGiversCount(formDataDTO.getCareGiversCount() != 0 ? formDataDTO.getCareGiversCount(): careCoordinatorUpdateData.get().getCareGiversCount());
+			careCoordinatorUpdateData.get().setCategory(formDataDTO.getCategory()!=null ? formDataDTO.getCategory(): careCoordinatorUpdateData.get().getCategory());
+			careCoordinatorUpdateData.get().setClientsCount(formDataDTO.getClientsCount() != 0 ? formDataDTO.getClientsCount(): careCoordinatorUpdateData.get().getClientsCount());
+			careCoordinatorUpdateData.get().setEmailId(formDataDTO.getEmailId() != null ? formDataDTO.getEmailId(): careCoordinatorUpdateData.get().getEmailId());
+			careCoordinatorUpdateData.get().setMobileNo(formDataDTO.getMobileNo() != 0 ? formDataDTO.getMobileNo(): careCoordinatorUpdateData.get().getMobileNo());
+			careCoordinatorUpdateData.get().setSkills(formDataDTO.getSkills() != null ? formDataDTO.getSkills(): careCoordinatorUpdateData.get().getSkills());
+		
+			if (formDataDTO.getUploadPhoto() != null) {
+				String fileName = StringUtils.cleanPath(formDataDTO.getUploadPhoto().getOriginalFilename());
+				try {
+					careCoordinatorUpdateData.get().setUploadPhoto(new UploadProfile(formDataDTO.getUploadPhoto().getOriginalFilename(),formDataDTO.getUploadPhoto().getContentType(),formDataDTO.getUploadPhoto().getBytes(), formDataDTO.getUploadPhoto().getSize()));
+				} catch (IOException e) {
+					log.info("Error Occured at UpdateCareCoordinator Photo Upload");
+					e.printStackTrace();
+				}
+				CareCoordinator careCoordinatorUpdated = careCoordinatorRepository.save(careCoordinatorUpdateData.get());
+				return careCoordinatorUpdated;
+			}else {
+				careCoordinatorUpdateData.get().setUploadPhoto(careCoordinatorUpdateData.get().getUploadPhoto());
 			}
-			CareCoordinator careCoordinatorUpdated = careCoordinatorRepository.save(careCoordinator);
-			uploadProfileRepository.deleteById(uploadProfileId);
-			return careCoordinatorUpdated;
 		}
 		return careCoordinatorUpdateData.get();
 	}

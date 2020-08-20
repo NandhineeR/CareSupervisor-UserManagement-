@@ -107,15 +107,18 @@ public class CareProviderController {
 				careProvidersResponse.put("total_count", totalCount.size());
 				careProvidersResponse.put("offset", pageNo);
 
-				String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
-						.path("/careProvider/downloadFile/" + careProvider.getUploadPhoto().getId()).toUriString();
-
 				Map<String, Object> careProvidersData = new HashMap<>();
 				careProvidersData.put("id", careProvider.getCareProviderId());
 				careProvidersData.put("name", careProvider.getCareProviderName());
 				careProvidersData.put("isactive", careProvider.getActiveStatus());
 				careProvidersData.put("service", "");
-				careProvidersData.put("profile_pic", fileDownloadUri);
+				if (careProvider.getUploadPhoto() != null) {
+					String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
+							.path("/careProvider/downloadFile/" + careProvider.getUploadPhoto().getId()).toUriString();
+					careProvidersData.put("profile_pic", fileDownloadUri);
+				} else {
+					careProvidersData.put("profile_pic", "");
+				}
 				careProvidersData.put("category", categoryList);
 				careProvidersData.put("orderList", jsonarr);
 				careProviderRecords.add(careProvidersData);
@@ -155,14 +158,19 @@ public class CareProviderController {
 					}
 				}
 
-				String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
-						.path("/careProvider/downloadFile/" + careProviderList.getUploadPhoto().getId()).toUriString();
-
 				System.out.println("Offers " + careProviderList.getOfferings() + "  " + careProviderList.getSkills());
 				careProviderRecord.put("id", careProviderList.getCareProviderId());
 				careProviderRecord.put("name", careProviderList.getCareProviderName());
 				careProviderRecord.put("isactive", careProviderList.getActiveStatus());
-				careProviderRecord.put("profile_pic", fileDownloadUri);
+				if (careProviderList.getUploadPhoto() != null) {
+					String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
+							.path("/careProvider/downloadFile/" + careProviderList.getUploadPhoto().getId())
+							.toUriString();
+					careProviderRecord.put("profile_pic", fileDownloadUri);
+				} else {
+					careProviderRecord.put("profile_pic", "");
+
+				}
 				careProviderRecord.put("service", "");
 				careProviderRecord.put("incharge_name", careProviderList.getInChargesName());
 				careProviderRecord.put("mobile_no", careProviderList.getMobileNo());
@@ -226,7 +234,7 @@ public class CareProviderController {
 			return response;
 		}
 	}
-	
+
 	@GetMapping("/downloadFile/{fileId:.+}")
 	public ResponseEntity<Resource> downloadFile(@PathVariable int fileId, HttpServletRequest request) {
 		UploadProfile databaseFile = careProviderService.getFile(fileId);

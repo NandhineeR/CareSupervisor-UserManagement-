@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -51,7 +50,7 @@ public class CareGiverServiceImpl implements CareGiverService {
 
 	@Override
 	public List<CareGiver> getCareGiver(Integer pageNo, Integer pageSize) {
-	//	Pageable paging = PageRequest.of(pageNo, pageSize,Sort.by("careGiverName"));
+		// Pageable paging = PageRequest.of(pageNo, pageSize,Sort.by("careGiverName"));
 		Pageable paging = PageRequest.of(pageNo, pageSize);
 		Page<CareGiver> pagedResult = careGiverRepository.findAll(paging);
 		return pagedResult.hasContent() ? pagedResult.getContent() : new ArrayList<CareGiver>();
@@ -97,37 +96,47 @@ public class CareGiverServiceImpl implements CareGiverService {
 	@Override
 	public CareGiver addCareGiver(FormDataDTO formDataDTO) {
 		CareGiver careGiver = modelMapper.map(formDataDTO, CareGiver.class);
-		String fileName = StringUtils.cleanPath(formDataDTO.getUploadPhoto().getOriginalFilename());
-		UploadProfile uploadProfile = null;
-		try {
-			uploadProfile = UploadProfile.builder().fileName(fileName)
-					.fileType(formDataDTO.getUploadPhoto().getContentType())
-					.data(formDataDTO.getUploadPhoto().getBytes()).size(formDataDTO.getUploadPhoto().getSize()).build();
-		} catch (IOException e) {
-			log.error("Error Occured In Care Givers Service Update Care Giver With Id " + careGiver.getCareGiverId());
+		if (careGiver.getUploadPhoto() != null) {
+			UploadProfile uploadProfile = null;
+			try {
+				String fileName = StringUtils.cleanPath(formDataDTO.getUploadPhoto().getOriginalFilename());
+				uploadProfile = UploadProfile.builder().fileName(fileName)
+						.fileType(formDataDTO.getUploadPhoto().getContentType())
+						.data(formDataDTO.getUploadPhoto().getBytes()).size(formDataDTO.getUploadPhoto().getSize())
+						.build();
+				careGiver.setUploadPhoto(uploadProfile);
+			} catch (IOException e) {
+				log.error("Error Occured In CareGiversService AddCareGiver ProfileUpload With Id : " + careGiver.getCareGiverId());
+			}
 		}
-		careGiver.setUploadPhoto(uploadProfile);
 		return careGiverRepository.save(careGiver);
 	}
 
 	@Override
 	public CareGiver updateCareGiver(FormDataDTO formDataDTO) {
 		Optional<CareGiver> careGiverUpdateDate = careGiverRepository.findById(formDataDTO.getCareGiverId());
-		int uploadProfileId = careGiverUpdateDate.get().getUploadPhoto().getId();
 		if (careGiverUpdateDate.isPresent()) {
-			CareGiver careGiver = modelMapper.map(formDataDTO, CareGiver.class);
-			try {
-				careGiver.getUploadPhoto().setFileName(formDataDTO.getUploadPhoto().getOriginalFilename());
-				careGiver.getUploadPhoto().setFileType(formDataDTO.getUploadPhoto().getContentType());
-				careGiver.getUploadPhoto().setData(formDataDTO.getUploadPhoto().getBytes());
-				careGiver.getUploadPhoto().setSize(formDataDTO.getUploadPhoto().getSize());
-			} catch (IOException e) {
-				log.error(
-						"Error Occured In Care Givers Service Update Care Giver With Id " + careGiver.getCareGiverId());
+			careGiverUpdateDate.get().setActiveStatus(formDataDTO.getActiveStatus() != null ? formDataDTO.getActiveStatus(): careGiverUpdateDate.get().getActiveStatus());
+			careGiverUpdateDate.get().setAddress(formDataDTO.getAddress() != null ? formDataDTO.getAddress(): careGiverUpdateDate.get().getAddress());
+			careGiverUpdateDate.get().setCareGiverName(formDataDTO.getCareGiverName() != null ? formDataDTO.getCareGiverName(): careGiverUpdateDate.get().getCareGiverName());
+			careGiverUpdateDate.get().setCategory(formDataDTO.getCategory() != null ? formDataDTO.getCategory(): careGiverUpdateDate.get().getCategory());
+			careGiverUpdateDate.get().setClientsCount(formDataDTO.getClientsCount() != 0 ? formDataDTO.getClientsCount(): careGiverUpdateDate.get().getClientsCount());
+			careGiverUpdateDate.get().setEmailId(formDataDTO.getEmailId() != null ? formDataDTO.getEmailId(): careGiverUpdateDate.get().getEmailId());
+			careGiverUpdateDate.get().setMobileNo(formDataDTO.getMobileNo() != 0 ? formDataDTO.getMobileNo(): careGiverUpdateDate.get().getMobileNo());
+			careGiverUpdateDate.get().setSkills(formDataDTO.getSkills() != null ? formDataDTO.getSkills() : careGiverUpdateDate.get().getSkills());
+			if (formDataDTO.getUploadPhoto() != null) {
+				String fileName = StringUtils.cleanPath(formDataDTO.getUploadPhoto().getOriginalFilename());
+				try {
+					careGiverUpdateDate.get().setUploadPhoto(new UploadProfile(formDataDTO.getUploadPhoto().getOriginalFilename(),formDataDTO.getUploadPhoto().getContentType(),formDataDTO.getUploadPhoto().getBytes(), formDataDTO.getUploadPhoto().getSize()));
+				} catch (IOException e) {
+					log.info("Error Occured at UpdateCareGiver Photo Upload");
+					e.printStackTrace();
+				}
+				CareGiver savedCareGiver = careGiverRepository.save(careGiverUpdateDate.get());
+				return savedCareGiver;
+			}else {
+				careGiverUpdateDate.get().setUploadPhoto(careGiverUpdateDate.get().getUploadPhoto());
 			}
-			CareGiver savedCareGiver = careGiverRepository.save(careGiver);
-			uploadProfileRepository.deleteById(uploadProfileId);
-			return savedCareGiver;
 		}
 		return careGiverUpdateDate.get();
 	}

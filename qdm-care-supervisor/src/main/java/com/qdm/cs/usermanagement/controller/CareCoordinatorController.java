@@ -103,18 +103,22 @@ public class CareCoordinatorController {
 				careCoordinatorResponse.put("total_count", pageSize);
 				careCoordinatorResponse.put("offset", pageNo);
 
-				String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
-						.path("/careCoordinator/downloadFile/" + careCoordinatorData.getUploadPhoto().getId()).toUriString();
-
-				Map<String, Object> careGiverDatas = new HashMap<>();
-				careGiverDatas.put("id", careCoordinatorData.getCareCoordinatorId());
-				careGiverDatas.put("name", careCoordinatorData.getCareCoordinatorName());
-				careGiverDatas.put("isactive", careCoordinatorData.getActiveStatus());
-				careGiverDatas.put("service", "");
-				careGiverDatas.put("profile_pic",fileDownloadUri);
-				careGiverDatas.put("category", categoryList);
-				careGiverDatas.put("orderList", jsonarr);
-				coordinator.add(careGiverDatas);
+				
+				Map<String, Object> careCoordinatorDatas = new HashMap<>();
+				careCoordinatorDatas.put("id", careCoordinatorData.getCareCoordinatorId());
+				careCoordinatorDatas.put("name", careCoordinatorData.getCareCoordinatorName());
+				careCoordinatorDatas.put("isactive", careCoordinatorData.getActiveStatus());
+				careCoordinatorDatas.put("service", "");
+				if (careCoordinatorData.getUploadPhoto() != null) {
+					String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
+							.path("/careCoordinator/downloadFile/" + careCoordinatorData.getUploadPhoto().getId()).toUriString();
+					careCoordinatorDatas.put("profile_pic", fileDownloadUri);
+				} else {
+					careCoordinatorDatas.put("profile_pic", "");
+				}
+				careCoordinatorDatas.put("category", categoryList);
+				careCoordinatorDatas.put("orderList", jsonarr);
+				coordinator.add(careCoordinatorDatas);
 				careCoordinatorResponse.put("list", coordinator);
 
 			}
@@ -151,14 +155,18 @@ public class CareCoordinatorController {
 						categoryList.add(categoryMap);
 					}
 				}
-
-				String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
-						.path("/careCoordinator/downloadFile/" + careCoordinatorData.getUploadPhoto().getId()).toUriString();
-
 				careCoordinatorRecord.put("id", careCoordinatorData.getCareCoordinatorId());
 				careCoordinatorRecord.put("name", careCoordinatorData.getCareCoordinatorName());
 				careCoordinatorRecord.put("isactive", careCoordinatorData.getActiveStatus());
-				careCoordinatorRecord.put("profile_pic", fileDownloadUri);
+				if (careCoordinatorData.getUploadPhoto() != null) {
+					String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
+							.path("/careCoordinator/downloadFile/" + careCoordinatorData.getUploadPhoto().getId()).toUriString();
+
+					careCoordinatorRecord.put("profile_pic", fileDownloadUri);
+				} else {
+					careCoordinatorRecord.put("profile_pic", "");
+
+				}
 				careCoordinatorRecord.put("mobile_no", careCoordinatorData.getMobileNo());
 				careCoordinatorRecord.put("email", careCoordinatorData.getEmailId());
 				careCoordinatorRecord.put("address", careCoordinatorData.getAddress());
